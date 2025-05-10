@@ -12,18 +12,16 @@ struct Color {
 	bool operator==(const Color& other) const {
 		return r == other.r && g == other.g && b == other.b && alpha == other.alpha;
 	}
+
+	static Color random() {
+		static std::random_device rd;
+		static std::mt19937 gen(rd());
+
+		std::uniform_real_distribution<float> distrib(0.0f, 1.0f);
+
+		return Color{distrib(gen), distrib(gen), distrib(gen), 1.0f};
+	}
 };
-
-std::mt19937& getRng() {
-	static std::random_device rd;
-	static std::mt19937 gen(rd());
-	return gen;
-}
-
-Color getRandomColor() {
-	static std::uniform_real_distribution<float> distrib(0.0f, 1.0f);
-	return Color{distrib(getRng()), distrib(getRng()), distrib(getRng()), 1.0f};
-}
 
 template <typename T>
 T lerp(T a, T b, float t) {
@@ -57,8 +55,8 @@ int main()
 	float startTime = glfwGetTime();
 	float duration = 2.0f;
 
-	Color fromColor = getRandomColor();
-	Color toColor = getRandomColor();
+	Color fromColor = Color::random();
+	Color toColor = Color::random();
 
 	while (!glfwWindowShouldClose(window)) {
 		float currentTime = glfwGetTime();
@@ -75,7 +73,7 @@ int main()
 
 		if (t >= 1.0f) {
 			fromColor = toColor;
-			toColor = getRandomColor();
+			toColor = Color::random();
 			startTime = glfwGetTime();
 		}
 
