@@ -10,11 +10,14 @@ project("GraphicsEngine")
 
 add_subdirectory(external/glfw-3.4)
 
+set(OPEN_GL_PREFERENCE GLVND)
+find_package(OpenGL REQUIRED)
+
 file(GLOB SOURCES src/*.h src/*.cpp src/**/*.h src/**/*.cpp external/glad/src/glad.c)
 
 add_executable(GraphicsEngine ${SOURCES})
 
-target_link_libraries(GraphicsEngine PRIVATE glfw)
+target_link_libraries(GraphicsEngine PRIVATE glfw OpenGL::GL)
 
 target_include_directories(GraphicsEngine PRIVATE external/glfw-3.4/include external/glad/include)
 
