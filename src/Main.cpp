@@ -70,9 +70,9 @@ int main() {
 
     while (
 #ifdef __APPLE__
-        true
+    !isWindowClosed()
 #else
-        !glfwWindowShouldClose(window)
+    !glfwWindowShouldClose(window)
 #endif
     ) {
 		double currentTime = GetTimeSeconds();

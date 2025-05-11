@@ -4,5 +4,6 @@
 
 void* CreateMacWindow(int width, int height);
 void  RunMacEventLoopTick();
+bool isWindowClosed();
 
 #endif

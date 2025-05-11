@@ -2,6 +2,7 @@
 #import <QuartzCore/QuartzCore.h>
 
 static NSWindow* g_window = nil;
+static bool g_windowClosed = false;
 
 void* CreateMacWindow(int width, int height) {
     [NSApplication sharedApplication];
@@ -22,6 +23,13 @@ void* CreateMacWindow(int width, int height) {
     [g_window setTitle:@"GraphicsEngine"];
     [g_window makeKeyAndOrderFront:nil];
 
+    [[NSNotificationCenter defaultCenter] addObserverForName:NSWindowWillCloseNotification
+                                                      object:g_window
+                                                       queue:nil
+                                                  usingBlock:^(NSNotification *note) {
+                                                      g_windowClosed = true;
+                                                  }];
+
     // Log window size for debugging
     NSLog(@"Window created with bounds: %@", NSStringFromRect([g_window frame]));
 
@@ -36,4 +44,8 @@ void RunMacEventLoopTick() {
                                           dequeue:YES])) {
         [NSApp sendEvent:event];
     }
+}
+
+bool isWindowClosed() {
+    return g_windowClosed;
 }
