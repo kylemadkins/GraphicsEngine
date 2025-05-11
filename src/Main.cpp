@@ -1,92 +1,113 @@
 ﻿#include <random>
+#include <memory>
+#include <iostream>
 
+#include "common/Color.h"
+#include "common/Renderer.h"
+#include "common/Time.h"
+
+#ifdef __APPLE__
+#include "platform/mac/MetalRenderer.h"
+#include "platform/mac/MacWindow.h"
+#else
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
-struct Color {
-	float r;
-	float g;
-	float b;
-	float alpha;
-
-	bool operator==(const Color& other) const {
-		return r == other.r && g == other.g && b == other.b && alpha == other.alpha;
-	}
-
-	static Color random() {
-		static std::random_device rd;
-		static std::mt19937 gen(rd());
-
-		std::uniform_real_distribution<float> distrib(0.0f, 1.0f);
-
-		return Color{distrib(gen), distrib(gen), distrib(gen), 1.0f};
-	}
-};
+#include "platform/gl/OpenGLRenderer.h"
+#endif
 
 template <typename T>
 T lerp(T a, T b, float t) {
-	return a + t * (b - a);
+    return a + t * (b - a);
 }
 
-int main()
-{
-	if (!glfwInit()) {
-		return -1;
-	}
+int main() {
+    const int width = 640;
+    const int height = 480;
 
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    void* nativeHandle = nullptr;
+
 #ifdef __APPLE__
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    nativeHandle = CreateMacWindow(width, height);
+#else
+    if (!glfwInit()) {
+        std::cerr << "Failed to initialize GLFW\n";
+        return -1;
+    }
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-	int width = 640;
-	int height = 480;
+    GLFWwindow* window = glfwCreateWindow(width, height, "Graphics Engine", nullptr, nullptr);
+    if (!window) {
+        glfwTerminate();
+        std::cerr << "Failed to create window\n";
+        return -1;
+    }
 
-	GLFWwindow* window = glfwCreateWindow(width, height, "Graphics Engine", NULL, NULL);
-	if (!window) {
-		glfwTerminate();
-		return -1;
-	}
-	glfwMakeContextCurrent(window);
+    glfwMakeContextCurrent(window);
+    nativeHandle = window;
+#endif
 
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-		return -1;
-	}
+    std::unique_ptr<Renderer> renderer;
 
-	glViewport(0, 0, width, height);
+#ifdef __APPLE__
+    renderer = std::make_unique<MetalRenderer>();
+#else
+    renderer = std::make_unique<OpenGLRenderer>();
+#endif
 
-	float startTime = glfwGetTime();
-	float duration = 2.0f;
+    renderer->init(width, height, nativeHandle);
 
-	Color fromColor = Color::random();
-	Color toColor = Color::random();
+    float duration = 2.0f;
+	double startTime = GetTimeSeconds();
 
-	while (!glfwWindowShouldClose(window)) {
-		float currentTime = glfwGetTime();
-		float t = (currentTime - startTime) / duration;
-		if (t > 1.0f) t = 1.0f;
+    Color fromColor = Color::random();
+    Color toColor = Color::random();
 
-		float r = lerp(fromColor.r, toColor.r, t);
-		float g = lerp(fromColor.g, toColor.g, t);
-		float b = lerp(fromColor.b, toColor.b, t);
+    while (
+#ifdef __APPLE__
+        true
+#else
+        !glfwWindowShouldClose(window)
+#endif
+    ) {
+		double currentTime = GetTimeSeconds();
+        float t = static_cast<float>((currentTime - startTime) / duration);
+        if (t > 1.0f) t = 1.0f;
 
-		glClearColor(r, g, b, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-		glfwSwapBuffers(window);
+        Color interpolated{
+            lerp(fromColor.r, toColor.r, t),
+            lerp(fromColor.g, toColor.g, t),
+            lerp(fromColor.b, toColor.b, t),
+            1.0f
+        };
 
-		if (t >= 1.0f) {
-			fromColor = toColor;
-			toColor = Color::random();
-			startTime = glfwGetTime();
-		}
+        renderer->render(interpolated);
+        renderer->present();
 
-		glfwPollEvents();
-	}
+        if (t >= 1.0f) {
+            fromColor = toColor;
+            toColor = Color::random();
+            startTime = currentTime;
+        }
 
-	glfwDestroyWindow(window);
-	glfwTerminate();
+#ifdef __APPLE__
+        RunMacEventLoopTick();
+#else
+        glfwPollEvents();
+#endif
+    }
 
-	return 0;
+    renderer->shutdown();
+
+#ifndef __APPLE__
+    glfwDestroyWindow(window);
+    glfwTerminate();
+#endif
+
+    return 0;
 }
