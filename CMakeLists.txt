@@ -17,10 +17,10 @@ file(GLOB_RECURSE COMMON_SOURCES src/common/*.cpp src/common/*.h)
 # Platform-specific sources and includes
 if(APPLE)
   file(GLOB_RECURSE PLATFORM_SOURCES src/platform/mac/*.mm src/platform/mac/*.h)
-  file(GLOB_RECURSE PLATFORM_INCLUDES)
+  set(PLATFORM_INCLUDES "")
 else()
   file(GLOB_RECURSE PLATFORM_SOURCES src/platform/gl/*.cpp src/platform/gl/*.h external/glad/src/glad.c)
-  file(GLOB_RECURSE PLATFORM_INCLUDES external/glfw-3.4/include external/glad/include)
+  set(PLATFORM_INCLUDES external/glfw-3.4/include external/glad/include)
 endif()
 
 add_executable(GraphicsEngine src/Main.cpp ${COMMON_SOURCES} ${PLATFORM_SOURCES})
