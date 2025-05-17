@@ -3,9 +3,10 @@
 out vec4 FragColor;
 
 in vec4 ourColor;
+in vec4 ourPos;
 
 uniform float time;
 
 void main() {
-	FragColor = mix(vec4(1.0, 1.0, 0.0, 1.0), ourColor, sin(time) / 2.0 + 0.5);
+	FragColor = ourPos;
 }

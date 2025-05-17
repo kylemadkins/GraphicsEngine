@@ -66,11 +66,12 @@ int main()
 	Shader shader = Shader("shaders/triangle.vert", "shaders/triangle.frag");
 
 	while (!glfwWindowShouldClose(window)) {
-		glClearColor(0.1, 0.1, 0.1, 1.0);
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		shader.use();
 		shader.setFloat("time", glfwGetTime());
+		shader.setFloat("hOffset", 1.0f);
 
 		glBindVertexArray(vao);
 
