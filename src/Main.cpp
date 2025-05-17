@@ -8,29 +8,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-std::string loadShader(const std::string& filePath) {
-	std::ifstream shaderFile(filePath);
-	if (!shaderFile.is_open()) {
-		throw std::runtime_error("Failed to open shader file: " + filePath);
-	}
-	std::stringstream buffer;
-	buffer << shaderFile.rdbuf();
-	return buffer.str();
-}
+#include "Shader.h"
 
 int main()
 {
-	std::string vertexShader;
-	std::string fragmentShader;
-	try {
-		vertexShader = loadShader("shaders/triangle.vert");
-		fragmentShader = loadShader("shaders/triangle.frag");
-	}
-	catch (const std::runtime_error& error) {
-		std::cerr << error.what() << std::endl;
-		return 1;
-	}
-
 	if (!glfwInit()) {
 		return 1;
 	}
@@ -64,24 +45,6 @@ int main()
 		0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f
 	};
 
-	GLuint vsh = glCreateShader(GL_VERTEX_SHADER);
-	const char* vshSrc = vertexShader.c_str();
-	glShaderSource(vsh, 1, &vshSrc, NULL);
-	glCompileShader(vsh);
-
-	GLuint fsh = glCreateShader(GL_FRAGMENT_SHADER);
-	const char* fshSrc = fragmentShader.c_str();
-	glShaderSource(fsh, 1, &fshSrc, NULL);
-	glCompileShader(fsh);
-	
-	GLuint shaderProgam = glCreateProgram();
-	glAttachShader(shaderProgam, vsh);
-	glAttachShader(shaderProgam, fsh);
-	glLinkProgram(shaderProgam);
-
-	glDeleteShader(vsh);
-	glDeleteShader(fsh);
-
 	GLuint vao, vbo;
 	glGenVertexArrays(1, &vao);
 	glGenBuffers(1, &vbo);
@@ -100,11 +63,14 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
+	Shader shader = Shader("shaders/triangle.vert", "shaders/triangle.frag");
+
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(0.1, 0.1, 0.1, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glUseProgram(shaderProgam);
+		shader.use();
+		shader.setFloat("time", glfwGetTime());
 
 		glBindVertexArray(vao);
 
@@ -115,7 +81,6 @@ int main()
 		glfwPollEvents();
 	}
 
-	glDeleteProgram(shaderProgam);
 	glDeleteVertexArrays(1, &vao);
 	glDeleteBuffers(1, &vbo);
 
