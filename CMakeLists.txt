@@ -19,13 +19,27 @@ add_executable(GraphicsEngine ${SOURCES})
 
 target_link_libraries(GraphicsEngine PRIVATE glfw OpenGL::GL)
 
-target_include_directories(GraphicsEngine PRIVATE external/glfw-3.4/include external/glad/include)
+target_include_directories(GraphicsEngine
+    PRIVATE
+        external/glfw-3.4/include
+        external/glad/include
+        external/stb_image-2.30
+)
 
+# Copy shaders
 add_custom_command(
     TARGET GraphicsEngine POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_SOURCE_DIR}/shaders
             ${CMAKE_CURRENT_BINARY_DIR}/shaders
+)
+
+# Copy textures
+add_custom_command(
+    TARGET GraphicsEngine POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/textures
+            ${CMAKE_CURRENT_BINARY_DIR}/textures
 )
 
 set_target_properties(GraphicsEngine PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)

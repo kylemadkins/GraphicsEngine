@@ -2,11 +2,14 @@
 
 out vec4 FragColor;
 
-in vec4 ourColor;
-in vec4 ourPos;
+in vec2 texCoord;
 
-uniform float time;
+uniform sampler2D texture1;
+uniform sampler2D texture2;
 
 void main() {
-	FragColor = ourPos;
+	vec4 color1 = texture(texture1, texCoord);
+	vec4 color2 = texture(texture2, texCoord);
+	float alpha = color2.a * 0.2;
+	FragColor = mix(color1, color2, alpha);
 }
