@@ -25,8 +25,8 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-	int windowWidth = 640;
-	int windowHeight = 480;
+	int windowWidth = 1024;
+	int windowHeight = 768;
 
 	GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "Graphics Engine", NULL, NULL);
 	if (!window) {
@@ -102,7 +102,7 @@ int main()
 
 	glBindTexture(GL_TEXTURE_2D, texture2);
 
-	data = stbi_load("textures/awesomeface.png", &width, &height, &nChannels, 0);
+	data = stbi_load("textures/moss.png", &width, &height, &nChannels, 0);
 	if (!data) {
 		std::cout << "ERROR::MAIN::LOADING_TEXTURE_FAILED" << std::endl;
 		return 1;
