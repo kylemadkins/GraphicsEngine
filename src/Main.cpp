@@ -72,8 +72,6 @@ int main()
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
 	Shader shader = Shader("shaders/triangle.vert", "shaders/triangle.frag");
@@ -102,7 +100,7 @@ int main()
 
 	glBindTexture(GL_TEXTURE_2D, texture2);
 
-	data = stbi_load("textures/moss.png", &width, &height, &nChannels, 0);
+	data = stbi_load("textures/awesomeface.png", &width, &height, &nChannels, 0);
 	if (!data) {
 		std::cout << "ERROR::MAIN::LOADING_TEXTURE_FAILED" << std::endl;
 		return 1;
