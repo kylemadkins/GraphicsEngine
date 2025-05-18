@@ -134,8 +134,11 @@ int main()
 		glfwPollEvents();
 	}
 
-	glDeleteVertexArrays(1, &vao);
+	glDeleteTextures(1, &texture1);
+	glDeleteTextures(1, &texture2);
 	glDeleteBuffers(1, &vbo);
+	glDeleteBuffers(1, &ebo);
+	glDeleteVertexArrays(1, &vao);
 
 	glfwDestroyWindow(window);
 	glfwTerminate();
